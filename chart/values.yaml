@@ -1,0 +1,7 @@
+checkoutReplicas: 1
+services:
+  - {name: payment, image: 'fintech-payment:local', uid: 10001, memory: 64Mi, cpu: 100m, probe: /healthz}
+  - {name: notification, image: 'fintech-notification:local', uid: 1000, memory: 128Mi, cpu: 100m, probe: /healthz}
+  - {name: ledger, image: 'java-ledger:local', uid: 10001, memory: 512Mi, cpu: '1', probe: /readyz, temporaryVolume: true, startup: true}
+  - {name: fraud, image: 'synthetic-fraud:local', uid: 10001, memory: 128Mi, cpu: 250m, probe: /healthz}
+  - {name: checkout, image: 'fintech-checkout:local', uid: 1000, memory: 128Mi, cpu: 100m, probe: /healthz}

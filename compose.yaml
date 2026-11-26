@@ -1,0 +1,18 @@
+services:
+  payment:
+    build: services/payment
+    image: fintech-payment:local
+  notification:
+    build: services/notification
+    image: fintech-notification:local
+  ledger:
+    build: ../java-cicd-kubernetes
+    image: java-ledger:local
+  fraud:
+    build: ../Fundamentals-of-MLOps/labs/synthetic-fraud
+    image: synthetic-fraud:local
+  checkout:
+    build: services/checkout
+    image: fintech-checkout:local
+    ports: ["127.0.0.1:18087:8080"]
+    depends_on: [payment, notification, ledger, fraud]

@@ -1,0 +1,43 @@
+name: Local FinTech integration
+on: [pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: platform
+      - uses: actions/checkout@v4
+        with:
+          repository: bckish/java-cicd-kubernetes
+          ref: fc233e8a615c3117a1766023b4d3b268c5c01492
+          path: java-cicd-kubernetes
+      - uses: actions/checkout@v4
+        with:
+          repository: bckish/Fundamentals-of-MLOps
+          ref: fea14d46e374f02bc9a2539543f74110dbc17e15
+          path: Fundamentals-of-MLOps
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: go vet ./... && go test -race ./...
+        working-directory: platform/services/payment
+      - run: node --test server.test.mjs
+        working-directory: platform/services/notification
+      - run: helm lint chart && helm template fintech chart > /dev/null
+        working-directory: platform
+      - run: bash -n scripts/gitops-fixture.sh && bash -n scripts/verify-gitops.sh
+        working-directory: platform
+      - run: docker compose up -d --build
+        working-directory: platform
+      - run: python3 scripts/smoke.py
+        working-directory: platform
+      - if: always()
+        run: docker compose down -v
+        working-directory: platform
